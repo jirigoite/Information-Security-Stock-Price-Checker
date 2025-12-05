@@ -3,7 +3,8 @@ require('dotenv').config();
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
-
+const helmet      = require('helmet');
+const mongoose    = require('mongoose'); // IMPORTAR MONGOOSE
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
@@ -16,6 +17,20 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'"],
+  }
+}));
+
+// CONECTAR A LA BASE DE DATOS AQUÍ
+mongoose.connect(process.env.DB)
+  .then(() => console.log("Conectado exitosamente a MongoDB"))
+  .catch((err) => console.error("Error conectando a MongoDB:", err));
+
 
 //Index page (static HTML)
 app.route('/')
